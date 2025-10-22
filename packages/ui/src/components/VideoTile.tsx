@@ -59,7 +59,6 @@ export const VideoTile = React.forwardRef<HTMLDivElement, VideoTileProps>(
           </div>
         )}
 
-        {/* Name overlay */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-white truncate">
