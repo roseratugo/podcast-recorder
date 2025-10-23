@@ -1,43 +1,21 @@
 {
+  "productName": "Podcast Recorder",
+  "version": "0.1.0",
+  "identifier": "com.podcast.recorder",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "pnpm build",
-    "devPath": "http://localhost:1420",
-    "distDir": "../dist"
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
   },
-  "package": {
-    "productName": "Podcast Recorder",
-    "version": "0.1.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
-      },
-      "fs": {
-        "all": true,
-        "scope": ["$APPDATA/*", "$DOCUMENT/*", "$HOME/*"]
-      },
-      "path": {
-        "all": true
-      },
-      "os": {
-        "all": true
-      },
-      "dialog": {
-        "all": true
-      },
-      "notification": {
-        "all": true
-      }
-    },
+  "app": {
     "windows": [
       {
         "title": "Podcast Recorder",
         "width": 1200,
         "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
         "resizable": true,
         "fullscreen": false,
         "center": true
@@ -45,18 +23,9 @@
     ],
     "security": {
       "csp": null
-    },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.podcast.recorder",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ]
     }
+  },
+  "bundle": {
+    "active": false
   }
 }
