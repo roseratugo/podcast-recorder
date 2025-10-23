@@ -44,4 +44,4 @@ coverage/
 .cache/
 
 Recordings/
-recordings/
+gen/
