@@ -20,8 +20,8 @@
     "clean": "rimraf dist node_modules"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
-    "eslint": "^8.55.0",
+    "@types/node": "^24.9.1",
+    "eslint": "^9.38.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3"
   },
