@@ -133,4 +133,3 @@ pub struct JoinRoomResponse {
   pub participant_id: String,
   pub ice_servers: Vec<IceServer>,
 }
-
