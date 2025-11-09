@@ -259,8 +259,8 @@ export default function RecordingPage(): ReactElement {
                 name: participantName,
                 isHost: false,
                 isSpeaking: false,
-                isMuted: false,
-                isVideoOn: true,
+                isMuted: true, // Will be updated when tracks are received
+                isVideoOn: false, // Will be updated when tracks are received
               });
             },
 
@@ -278,6 +278,34 @@ export default function RecordingPage(): ReactElement {
               if (videoElement && track.kind === 'video') {
                 videoElement.srcObject = stream;
               }
+
+              // Set initial track state
+              if (track.kind === 'video') {
+                updateParticipantVideo(participantId, track.enabled);
+              } else if (track.kind === 'audio') {
+                updateParticipantMuted(participantId, !track.enabled);
+              }
+
+              // Monitor track enabled/disabled state changes
+              const handleTrackStateChange = () => {
+                console.log(
+                  `Track state changed for ${participantId}: ${track.kind} is now ${track.enabled ? 'enabled' : 'disabled'}`
+                );
+
+                if (track.kind === 'video') {
+                  updateParticipantVideo(participantId, track.enabled);
+                } else if (track.kind === 'audio') {
+                  updateParticipantMuted(participantId, !track.enabled);
+                }
+              };
+
+              // Listen for track state changes
+              track.addEventListener('mute', handleTrackStateChange);
+              track.addEventListener('unmute', handleTrackStateChange);
+              track.addEventListener('ended', () => {
+                track.removeEventListener('mute', handleTrackStateChange);
+                track.removeEventListener('unmute', handleTrackStateChange);
+              });
 
               // Update participant with stream
               updateParticipant(participantId, { stream });
@@ -311,7 +339,15 @@ export default function RecordingPage(): ReactElement {
         webrtcManagerRef.current = null;
       }
     };
-  }, [roomId, localStream, addParticipant, removeParticipant, updateParticipant]);
+  }, [
+    roomId,
+    localStream,
+    addParticipant,
+    removeParticipant,
+    updateParticipant,
+    updateParticipantVideo,
+    updateParticipantMuted,
+  ]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
