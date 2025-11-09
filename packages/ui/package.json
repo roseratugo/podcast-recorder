@@ -29,10 +29,10 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/node": "^24.9.1",
+    "@types/node": "^20.10.0",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
-    "eslint": "^9.38.0",
+    "eslint": "^8.55.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tsup": "^8.0.1",

@@ -15,8 +15,6 @@
     "@podcast-recorder/proto": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^24.9.1",
-    "esbuild": "^0.25.11",
-    "eslint": "^9.38.0"
+    "esbuild": "^0.25.11"
   }
 }
