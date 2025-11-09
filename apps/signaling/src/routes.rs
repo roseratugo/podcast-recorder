@@ -1,4 +1,5 @@
 use crate::handlers::{self, AppState};
+use crate::websocket;
 use axum::{
   response::Json,
   routing::{delete, get, post},
@@ -10,6 +11,7 @@ pub fn create_router(state: AppState) -> Router {
   Router::new()
     .route("/", get(root))
     .route("/health", get(health))
+    .route("/ws", get(websocket::ws_handler))
     .route("/api/rooms", post(handlers::create_room))
     .route("/api/rooms/{id}", get(handlers::get_room))
     .route("/api/rooms/{id}", delete(handlers::delete_room))
