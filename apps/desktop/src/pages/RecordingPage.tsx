@@ -286,25 +286,37 @@ export default function RecordingPage(): ReactElement {
                 updateParticipantMuted(participantId, !track.enabled);
               }
 
-              // Monitor track enabled/disabled state changes
-              const handleTrackStateChange = () => {
-                console.log(
-                  `Track state changed for ${participantId}: ${track.kind} is now ${track.enabled ? 'enabled' : 'disabled'}`
-                );
+              // Track the last known state to detect changes
+              let lastEnabledState = track.enabled;
 
-                if (track.kind === 'video') {
-                  updateParticipantVideo(participantId, track.enabled);
-                } else if (track.kind === 'audio') {
-                  updateParticipantMuted(participantId, !track.enabled);
+              // Poll track enabled state since there's no event for track.enabled changes
+              const pollInterval = setInterval(() => {
+                if (track.readyState === 'ended') {
+                  clearInterval(pollInterval);
+                  return;
                 }
-              };
 
-              // Listen for track state changes
-              track.addEventListener('mute', handleTrackStateChange);
-              track.addEventListener('unmute', handleTrackStateChange);
+                // Check if enabled state has changed
+                if (lastEnabledState !== track.enabled) {
+                  lastEnabledState = track.enabled;
+
+                  if (track.kind === 'video') {
+                    console.log(
+                      `Video track state changed for ${participantId}: ${track.enabled ? 'enabled' : 'disabled'}`
+                    );
+                    updateParticipantVideo(participantId, track.enabled);
+                  } else if (track.kind === 'audio') {
+                    console.log(
+                      `Audio track state changed for ${participantId}: ${track.enabled ? 'unmuted' : 'muted'}`
+                    );
+                    updateParticipantMuted(participantId, !track.enabled);
+                  }
+                }
+              }, 200); // Check every 200ms for responsive UI
+
+              // Clean up interval when track ends
               track.addEventListener('ended', () => {
-                track.removeEventListener('mute', handleTrackStateChange);
-                track.removeEventListener('unmute', handleTrackStateChange);
+                clearInterval(pollInterval);
               });
 
               // Update participant with stream
