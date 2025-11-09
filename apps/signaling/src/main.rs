@@ -4,6 +4,7 @@ mod models;
 mod routes;
 mod shutdown;
 mod storage;
+mod websocket;
 
 use axum::Router;
 use config::Config;
