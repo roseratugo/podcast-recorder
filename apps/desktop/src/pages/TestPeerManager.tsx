@@ -110,6 +110,7 @@ export default function TestPeerManager(): ReactElement {
       manager.closeAll();
       localStream?.getTracks().forEach((track) => track.stop());
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const startLocalMedia = async () => {
