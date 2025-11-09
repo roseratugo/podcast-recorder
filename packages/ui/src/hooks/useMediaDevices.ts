@@ -7,35 +7,26 @@ export interface MediaDeviceInfo {
   groupId: string;
 }
 
-export interface UseMediaDevicesReturn {
-  devices: MediaDeviceInfo[];
-  audioInputDevices: MediaDeviceInfo[];
-  audioOutputDevices: MediaDeviceInfo[];
-  videoInputDevices: MediaDeviceInfo[];
-  loading: boolean;
-  error: Error | null;
-}
-
-export function useMediaDevices(): UseMediaDevicesReturn {
+export function useMediaDevices() {
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const audioInputDevices = devices.filter((d) => d.kind === 'audioinput');
-  const audioOutputDevices = devices.filter((d) => d.kind === 'audiooutput');
-  const videoInputDevices = devices.filter((d) => d.kind === 'videoinput');
+  const audioInputDevices = devices.filter(d => d.kind === 'audioinput');
+  const audioOutputDevices = devices.filter(d => d.kind === 'audiooutput');
+  const videoInputDevices = devices.filter(d => d.kind === 'videoinput');
 
   const enumerateDevices = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      await navigator.mediaDevices
-        .getUserMedia({ audio: true, video: true })
-        .then((stream) => {
-          stream.getTracks().forEach((track) => track.stop());
+      await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+        .then(stream => {
+          stream.getTracks().forEach(track => track.stop());
         })
-        .catch(() => {});
+        .catch(() => {
+        });
 
       const deviceList = await navigator.mediaDevices.enumerateDevices();
       setDevices(deviceList as MediaDeviceInfo[]);
@@ -47,10 +38,10 @@ export function useMediaDevices(): UseMediaDevicesReturn {
   }, []);
 
   useEffect(() => {
-    void enumerateDevices();
+    enumerateDevices();
 
     const handleDeviceChange = () => {
-      void enumerateDevices();
+      enumerateDevices();
     };
 
     navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange);
