@@ -214,11 +214,18 @@ export class WebRTCManager {
       // Create peer connection
       this.peerManager.createPeerConnection(participantId);
 
-      // Create and send offer
-      const offer = await this.peerManager.createOffer(participantId);
-      this.signalingClient.sendOffer(participantId, offer);
+      // Only create offer if we are the "initiator" (lower participant ID)
+      // This prevents both sides from creating offers (glare condition)
+      const shouldCreateOffer = this.config.participantId < participantId;
 
-      console.log(`WebRTCManager: Sent offer to ${participantId}`);
+      if (shouldCreateOffer) {
+        console.log(`WebRTCManager: Creating offer for ${participantId} (we are initiator)`);
+        const offer = await this.peerManager.createOffer(participantId);
+        this.signalingClient.sendOffer(participantId, offer);
+        console.log(`WebRTCManager: Sent offer to ${participantId}`);
+      } else {
+        console.log(`WebRTCManager: Waiting for offer from ${participantId} (they are initiator)`);
+      }
     } catch (error) {
       console.error(
         `WebRTCManager: Failed to handle participant joined for ${participantId}:`,
