@@ -21,11 +21,14 @@ export function useMediaDevices() {
       setLoading(true);
       setError(null);
 
+      // Request permissions first to get device labels
       await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
         .then(stream => {
+          // Stop all tracks immediately after getting permissions
           stream.getTracks().forEach(track => track.stop());
         })
         .catch(() => {
+          // User denied permissions, we'll still enumerate but won't have labels
         });
 
       const deviceList = await navigator.mediaDevices.enumerateDevices();
@@ -40,6 +43,7 @@ export function useMediaDevices() {
   useEffect(() => {
     enumerateDevices();
 
+    // Listen for device changes
     const handleDeviceChange = () => {
       enumerateDevices();
     };

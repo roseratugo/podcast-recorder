@@ -10,13 +10,16 @@ use tracing_subscriber;
 
 #[tokio::main]
 async fn main() {
+    // Initialize tracing
     tracing_subscriber::fmt::init();
 
+    // Build our application with routes
     let app = Router::new()
         .route("/", get(root))
         .route("/health", get(health))
         .layer(CorsLayer::permissive());
 
+    // Run our app
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3001")
         .await
         .unwrap();
@@ -28,10 +31,12 @@ async fn main() {
         .unwrap();
 }
 
+// Basic handler that responds with a static string
 async fn root() -> &'static str {
     "Podcast Recorder Signaling Server"
 }
 
+// Health check endpoint
 async fn health() -> Json<serde_json::Value> {
     Json(json!({
         "status": "ok",
