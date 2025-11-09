@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { createStorageAdapter } from '../lib/tauriStorage';
 
 export interface Participant {
   id: string;
@@ -187,8 +186,6 @@ export const useRoomStore = create<RoomStore>()(
       }),
       {
         name: 'room-storage',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        storage: createStorageAdapter('room.json') as any, // Type incompatibility between StateStorage and PersistStorage
         partialize: (state) => ({
           roomId: state.roomId,
           roomName: state.roomName,
