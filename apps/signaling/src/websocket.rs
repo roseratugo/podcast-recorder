@@ -130,9 +130,6 @@ async fn handle_socket(socket: WebSocket, claims: TokenClaims, state: AppState) 
   let room_id_clone = room_id.clone();
   let peers_clone2 = peers_clone.clone();
 
-  let state_clone = state.clone();
-  let room_id_clone2 = room_id.clone();
-
   let mut recv_task = tokio::spawn(async move {
     while let Some(Ok(msg)) = receiver.next().await {
       if let Message::Text(text) = msg {
@@ -142,8 +139,6 @@ async fn handle_socket(socket: WebSocket, claims: TokenClaims, state: AppState) 
               "Received message type {:?} from {} to {}",
               ws_msg.msg_type, ws_msg.from, ws_msg.to
             );
-
-            let _ = state_clone.storage.update_room_activity(&room_id_clone2);
 
             if ws_msg.to == "all" {
               broadcast_to_room(
