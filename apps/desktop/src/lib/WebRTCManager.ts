@@ -21,6 +21,7 @@ export interface WebRTCManagerEventHandlers {
   onParticipantLeft?: (participantId: string) => void;
   onRemoteTrack?: (participantId: string, track: MediaStreamTrack, stream: MediaStream) => void;
   onConnectionStateChange?: (participantId: string, state: string) => void;
+  onTrackStateChange?: (participantId: string, kind: 'video' | 'audio', enabled: boolean) => void;
   onError?: (error: Error) => void;
 }
 
@@ -116,6 +117,13 @@ export class WebRTCManager {
         this.handleIceCandidate(from, candidate);
       },
 
+      onTrackStateChange: (from: string, kind: 'video' | 'audio', enabled: boolean) => {
+        console.log(
+          `WebRTCManager: Track state change from ${from}: ${kind} ${enabled ? 'enabled' : 'disabled'}`
+        );
+        this.eventHandlers.onTrackStateChange?.(from, kind, enabled);
+      },
+
       onError: (error: Error) => {
         console.error('WebRTCManager: SignalingClient error:', error);
         this.eventHandlers.onError?.(error);
@@ -192,6 +200,16 @@ export class WebRTCManager {
    */
   getPeerCount(): number {
     return this.peerManager.getPeerCount();
+  }
+
+  /**
+   * Notify peers of local track state change
+   */
+  notifyTrackStateChange(kind: 'video' | 'audio', enabled: boolean): void {
+    console.log(
+      `WebRTCManager: Notifying track state change: ${kind} ${enabled ? 'enabled' : 'disabled'}`
+    );
+    this.signalingClient.sendTrackStateChange(kind, enabled);
   }
 
   /**

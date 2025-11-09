@@ -3,7 +3,7 @@
  * Handles communication with the signaling server for peer discovery and SDP/ICE exchange
  */
 
-export type MessageType = 'join' | 'leave' | 'offer' | 'answer' | 'ice';
+export type MessageType = 'join' | 'leave' | 'offer' | 'answer' | 'ice' | 'track-state';
 
 export interface SignalingMessage {
   type: MessageType;
@@ -17,12 +17,18 @@ export interface JoinData {
   participant_name: string;
 }
 
+export interface TrackStateData {
+  kind: 'video' | 'audio';
+  enabled: boolean;
+}
+
 export interface SignalingEventHandlers {
   onParticipantJoined?: (participantId: string, participantName: string) => void;
   onParticipantLeft?: (participantId: string) => void;
   onOffer?: (from: string, offer: RTCSessionDescriptionInit) => void;
   onAnswer?: (from: string, answer: RTCSessionDescriptionInit) => void;
   onIceCandidate?: (from: string, candidate: RTCIceCandidateInit) => void;
+  onTrackStateChange?: (from: string, kind: 'video' | 'audio', enabled: boolean) => void;
   onConnected?: () => void;
   onDisconnected?: () => void;
   onError?: (error: Error) => void;
@@ -183,6 +189,25 @@ export class SignalingClient {
   }
 
   /**
+   * Send track state change to all peers
+   */
+  sendTrackStateChange(kind: 'video' | 'audio', enabled: boolean): void {
+    const message: SignalingMessage = {
+      type: 'track-state',
+      from: this.config.participantId,
+      to: 'all',
+      data: {
+        kind,
+        enabled,
+      } as TrackStateData,
+    };
+    console.log(
+      `SignalingClient: Sending track state - ${kind}: ${enabled ? 'enabled' : 'disabled'}`
+    );
+    this.send(message);
+  }
+
+  /**
    * Check if client is connected
    */
   isClientConnected(): boolean {
@@ -254,6 +279,16 @@ export class SignalingClient {
         case 'ice': {
           const candidate = message.data as RTCIceCandidateInit;
           this.eventHandlers.onIceCandidate?.(message.from, candidate);
+          break;
+        }
+
+        case 'track-state': {
+          const trackState = message.data as TrackStateData;
+          this.eventHandlers.onTrackStateChange?.(
+            message.from,
+            trackState.kind,
+            trackState.enabled
+          );
           break;
         }
 

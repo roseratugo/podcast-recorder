@@ -279,54 +279,14 @@ export default function RecordingPage(): ReactElement {
                 videoElement.srcObject = stream;
               }
 
-              // Set initial track state
+              // Set initial track state - always enabled when track first arrives
               if (track.kind === 'video') {
-                console.log(
-                  `Initial video track state for ${participantId}: ${track.enabled ? 'enabled' : 'disabled'}`
-                );
-                updateParticipantVideo(participantId, track.enabled);
+                console.log(`Initial video track for ${participantId}`);
+                updateParticipantVideo(participantId, true);
               } else if (track.kind === 'audio') {
-                console.log(
-                  `Initial audio track state for ${participantId}: ${track.enabled ? 'enabled' : 'disabled'}`
-                );
-                updateParticipantMuted(participantId, !track.enabled);
+                console.log(`Initial audio track for ${participantId}`);
+                updateParticipantMuted(participantId, false);
               }
-
-              // Track the last known state to detect changes
-              let lastEnabledState = track.enabled;
-
-              // Poll track enabled state since there's no event for track.enabled changes
-              const pollInterval = setInterval(() => {
-                if (track.readyState === 'ended') {
-                  clearInterval(pollInterval);
-                  return;
-                }
-
-                // Check if enabled state has changed
-                if (lastEnabledState !== track.enabled) {
-                  console.log(
-                    `[POLLING] Track state change detected for ${participantId}: ${track.kind} ${lastEnabledState} -> ${track.enabled}`
-                  );
-                  lastEnabledState = track.enabled;
-
-                  if (track.kind === 'video') {
-                    console.log(
-                      `Video track state changed for ${participantId}: ${track.enabled ? 'enabled' : 'disabled'}`
-                    );
-                    updateParticipantVideo(participantId, track.enabled);
-                  } else if (track.kind === 'audio') {
-                    console.log(
-                      `Audio track state changed for ${participantId}: ${track.enabled ? 'unmuted' : 'muted'}`
-                    );
-                    updateParticipantMuted(participantId, !track.enabled);
-                  }
-                }
-              }, 200); // Check every 200ms for responsive UI
-
-              // Clean up interval when track ends
-              track.addEventListener('ended', () => {
-                clearInterval(pollInterval);
-              });
 
               // Update participant with stream
               updateParticipant(participantId, { stream });
@@ -334,6 +294,17 @@ export default function RecordingPage(): ReactElement {
 
             onConnectionStateChange: (participantId, state) => {
               console.log(`Connection state for ${participantId}: ${state}`);
+            },
+
+            onTrackStateChange: (participantId, kind, enabled) => {
+              console.log(
+                `Track state change for ${participantId}: ${kind} ${enabled ? 'enabled' : 'disabled'}`
+              );
+              if (kind === 'video') {
+                updateParticipantVideo(participantId, enabled);
+              } else if (kind === 'audio') {
+                updateParticipantMuted(participantId, !enabled);
+              }
             },
 
             onError: (error) => {
@@ -416,6 +387,11 @@ export default function RecordingPage(): ReactElement {
     }
 
     updateParticipantMuted('self', newMutedState);
+
+    // Notify remote peers of audio state change
+    if (webrtcManagerRef.current) {
+      webrtcManagerRef.current.notifyTrackStateChange('audio', !newMutedState);
+    }
   }, [
     participants,
     localStream,
@@ -439,6 +415,11 @@ export default function RecordingPage(): ReactElement {
     }
 
     updateParticipantVideo('self', newVideoState);
+
+    // Notify remote peers of video state change
+    if (webrtcManagerRef.current) {
+      webrtcManagerRef.current.notifyTrackStateChange('video', newVideoState);
+    }
   }, [participants, localStream, updateParticipantVideo]);
 
   const handleLeaveRoom = useCallback(() => {
