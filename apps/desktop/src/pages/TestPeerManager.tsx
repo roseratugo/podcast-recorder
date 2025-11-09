@@ -8,6 +8,8 @@ type PeerInfo = {
   connectionState: string;
   iceConnectionState: string;
   negotiationState: string;
+  iceGatheringState: string;
+  queuedCandidates: number;
   hasVideo: boolean;
   hasAudio: boolean;
 };
@@ -47,6 +49,8 @@ export default function TestPeerManager(): ReactElement {
             connectionState: 'new',
             iceConnectionState: 'new',
             negotiationState: 'stable',
+            iceGatheringState: 'new',
+            queuedCandidates: 0,
             hasVideo: false,
             hasAudio: false,
           };
@@ -59,6 +63,28 @@ export default function TestPeerManager(): ReactElement {
 
       onIceCandidate: (peerId: string, candidate: RTCIceCandidate) => {
         addLog(`🧊 ICE candidate for ${peerId}: ${candidate.candidate.substring(0, 50)}...`);
+        setPeers((prev) => {
+          const newPeers = new Map(prev);
+          const peer = newPeers.get(peerId);
+          if (peer && peerManager) {
+            peer.queuedCandidates = peerManager.getQueuedCandidatesCount(peerId);
+            newPeers.set(peerId, peer);
+          }
+          return newPeers;
+        });
+      },
+
+      onIceGatheringStateChange: (peerId: string, state: string) => {
+        addLog(`🔍 ICE gathering state for ${peerId}: ${state}`);
+        setPeers((prev) => {
+          const newPeers = new Map(prev);
+          const peer = newPeers.get(peerId);
+          if (peer) {
+            peer.iceGatheringState = state;
+            newPeers.set(peerId, peer);
+          }
+          return newPeers;
+        });
       },
 
       onConnectionStateChange: (peerId: string, state: string) => {
@@ -173,6 +199,8 @@ export default function TestPeerManager(): ReactElement {
           connectionState: peerConnection.connectionState,
           iceConnectionState: peerConnection.iceConnectionState,
           negotiationState: 'stable',
+          iceGatheringState: peerConnection.iceGatheringState,
+          queuedCandidates: 0,
           hasVideo: false,
           hasAudio: false,
         });
@@ -344,10 +372,20 @@ export default function TestPeerManager(): ReactElement {
                       </span>
                     </div>
                     <div className="info-row">
+                      <span>ICE Gathering:</span>
+                      <span className={`state ${peer.iceGatheringState}`}>
+                        {peer.iceGatheringState}
+                      </span>
+                    </div>
+                    <div className="info-row">
                       <span>Negotiation:</span>
                       <span className={`state ${peer.negotiationState}`}>
                         {peer.negotiationState}
                       </span>
+                    </div>
+                    <div className="info-row">
+                      <span>Queued ICE:</span>
+                      <span className="queued-count">{peer.queuedCandidates}</span>
                     </div>
                     <div className="info-row">
                       <span>Tracks:</span>

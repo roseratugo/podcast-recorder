@@ -6,6 +6,8 @@ type IceServer = {
 
 type PeerConnectionConfig = {
   iceServers: IceServer[];
+  iceCandidatePoolSize?: number;
+  iceTransportPolicy?: RTCIceTransportPolicy;
 };
 
 type PeerConnectionState =
@@ -24,6 +26,8 @@ type IceConnectionState =
   | 'disconnected'
   | 'closed';
 
+type IceGatheringState = 'new' | 'gathering' | 'complete';
+
 type NegotiationState = 'stable' | 'creating-offer' | 'creating-answer' | 'waiting-for-answer';
 
 type NegotiationOperation = {
@@ -39,6 +43,7 @@ export type PeerConnectionEventHandlers = {
   onIceCandidate?: (peerId: string, candidate: RTCIceCandidate) => void;
   onConnectionStateChange?: (peerId: string, state: PeerConnectionState) => void;
   onIceConnectionStateChange?: (peerId: string, state: IceConnectionState) => void;
+  onIceGatheringStateChange?: (peerId: string, state: IceGatheringState) => void;
   onNegotiationNeeded?: (peerId: string) => void;
   onError?: (peerId: string, error: Error) => void;
   onNegotiationStateChange?: (peerId: string, state: NegotiationState) => void;
@@ -54,6 +59,8 @@ export class PeerManager {
   private operationQueues: Map<string, NegotiationOperation[]>;
   private isProcessingQueue: Map<string, boolean>;
   private negotiationTimeouts: Map<string, NodeJS.Timeout>;
+  private iceCandidateQueues: Map<string, RTCIceCandidateInit[]>;
+  private iceGatheringStates: Map<string, IceGatheringState>;
   private readonly NEGOTIATION_TIMEOUT = 30000;
   private readonly MAX_RETRIES = 3;
 
@@ -66,6 +73,7 @@ export class PeerManager {
     this.localStream = null;
     this.config = {
       iceServers: iceServers.length > 0 ? iceServers : this.getDefaultIceServers(),
+      iceCandidatePoolSize: 10,
     };
     this.eventHandlers = eventHandlers;
     this.maxPeers = maxPeers;
@@ -73,6 +81,8 @@ export class PeerManager {
     this.operationQueues = new Map();
     this.isProcessingQueue = new Map();
     this.negotiationTimeouts = new Map();
+    this.iceCandidateQueues = new Map();
+    this.iceGatheringStates = new Map();
   }
 
   private getDefaultIceServers(): IceServer[] {
@@ -80,6 +90,49 @@ export class PeerManager {
       { urls: ['stun:stun.l.google.com:19302'] },
       { urls: ['stun:stun1.l.google.com:19302'] },
     ];
+  }
+
+  private queueIceCandidate(peerId: string, candidate: RTCIceCandidateInit): void {
+    if (!this.iceCandidateQueues.has(peerId)) {
+      this.iceCandidateQueues.set(peerId, []);
+    }
+    this.iceCandidateQueues.get(peerId)!.push(candidate);
+  }
+
+  private async flushIceCandidateQueue(peerId: string): Promise<void> {
+    const queue = this.iceCandidateQueues.get(peerId);
+    if (!queue || queue.length === 0) {
+      return;
+    }
+
+    const peerConnection = this.peers.get(peerId);
+    if (!peerConnection || !peerConnection.remoteDescription) {
+      return;
+    }
+
+    const candidates = [...queue];
+    queue.length = 0;
+
+    for (const candidate of candidates) {
+      try {
+        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+      } catch (error) {
+        console.error(`Failed to add ICE candidate for ${peerId}:`, error);
+        this.eventHandlers.onError?.(
+          peerId,
+          error instanceof Error ? error : new Error(String(error))
+        );
+      }
+    }
+  }
+
+  private setIceGatheringState(peerId: string, state: IceGatheringState): void {
+    this.iceGatheringStates.set(peerId, state);
+    this.eventHandlers.onIceGatheringStateChange?.(peerId, state);
+  }
+
+  private getIceGatheringState(peerId: string): IceGatheringState {
+    return this.iceGatheringStates.get(peerId) || 'new';
   }
 
   private setNegotiationState(peerId: string, state: NegotiationState): void {
@@ -267,6 +320,19 @@ export class PeerManager {
     peerConnection.oniceconnectionstatechange = () => {
       const state = peerConnection.iceConnectionState as IceConnectionState;
       this.eventHandlers.onIceConnectionStateChange?.(peerId, state);
+
+      if (state === 'failed') {
+        console.warn(`ICE connection failed for ${peerId}, may need ICE restart`);
+      }
+    };
+
+    peerConnection.onicegatheringstatechange = () => {
+      const state = peerConnection.iceGatheringState as IceGatheringState;
+      this.setIceGatheringState(peerId, state);
+
+      if (state === 'complete') {
+        console.log(`ICE gathering complete for ${peerId}`);
+      }
     };
 
     peerConnection.onnegotiationneeded = () => {
@@ -274,6 +340,8 @@ export class PeerManager {
     };
 
     this.peers.set(peerId, peerConnection);
+    this.iceCandidateQueues.set(peerId, []);
+    this.setIceGatheringState(peerId, 'new');
     return peerConnection;
   }
 
@@ -312,6 +380,8 @@ export class PeerManager {
     this.startNegotiationTimeout(peerId);
 
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+
+    await this.flushIceCandidateQueue(peerId);
 
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
@@ -409,6 +479,8 @@ export class PeerManager {
 
     await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 
+    await this.flushIceCandidateQueue(peerId);
+
     this.setNegotiationState(peerId, 'stable');
     this.clearNegotiationTimeout(peerId);
 
@@ -440,12 +512,33 @@ export class PeerManager {
     });
   }
 
+  async restartIce(peerId: string): Promise<RTCSessionDescriptionInit> {
+    const peerConnection = this.peers.get(peerId);
+
+    if (!peerConnection) {
+      throw new Error(`No peer connection found for ${peerId}`);
+    }
+
+    console.log(`Restarting ICE for ${peerId}`);
+
+    const options: RTCOfferOptions = {
+      iceRestart: true,
+    };
+
+    return this.createOffer(peerId, options);
+  }
+
   async handleIceCandidate(peerId: string, candidate: RTCIceCandidateInit): Promise<void> {
     try {
       const peerConnection = this.peers.get(peerId);
 
       if (!peerConnection) {
         throw new Error(`No peer connection found for ${peerId}`);
+      }
+
+      if (!peerConnection.remoteDescription) {
+        this.queueIceCandidate(peerId, candidate);
+        return;
       }
 
       await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
@@ -478,6 +571,7 @@ export class PeerManager {
       peerConnection.onicecandidate = null;
       peerConnection.onconnectionstatechange = null;
       peerConnection.oniceconnectionstatechange = null;
+      peerConnection.onicegatheringstatechange = null;
       peerConnection.onnegotiationneeded = null;
 
       peerConnection.getSenders().forEach((sender) => {
@@ -493,6 +587,8 @@ export class PeerManager {
     this.negotiationStates.delete(peerId);
     this.operationQueues.delete(peerId);
     this.isProcessingQueue.delete(peerId);
+    this.iceCandidateQueues.delete(peerId);
+    this.iceGatheringStates.delete(peerId);
     this.clearNegotiationTimeout(peerId);
   }
 
@@ -516,6 +612,14 @@ export class PeerManager {
   getIceConnectionState(peerId: string): IceConnectionState | undefined {
     const peerConnection = this.peers.get(peerId);
     return peerConnection?.iceConnectionState as IceConnectionState | undefined;
+  }
+
+  getGatheringState(peerId: string): IceGatheringState | undefined {
+    return this.getIceGatheringState(peerId);
+  }
+
+  getQueuedCandidatesCount(peerId: string): number {
+    return this.iceCandidateQueues.get(peerId)?.length || 0;
   }
 
   closeAll(): void {
