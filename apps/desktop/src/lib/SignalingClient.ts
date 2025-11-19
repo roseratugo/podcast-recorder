@@ -191,18 +191,18 @@ export class SignalingClient {
   /**
    * Send track state change to all peers
    */
-  sendTrackStateChange(kind: 'video' | 'audio', enabled: boolean): void {
+  sendTrackStateChange(kind: 'video' | 'audio', enabled: boolean, to: string = 'all'): void {
     const message: SignalingMessage = {
       type: 'track-state',
       from: this.config.participantId,
-      to: 'all',
+      to,
       data: {
         kind,
         enabled,
       } as TrackStateData,
     };
     console.log(
-      `SignalingClient: Sending track state - ${kind}: ${enabled ? 'enabled' : 'disabled'}`
+      `SignalingClient: Sending track state to ${to} - ${kind}: ${enabled ? 'enabled' : 'disabled'}`
     );
     this.send(message);
   }

@@ -264,3 +264,40 @@ async fn send_to_participant(peers: &PeerMap, room_id: &str, participant_id: &st
     }
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_message_type_serialization() {
+    // Test TrackState serialization
+    let track_state = MessageType::TrackState;
+    let json = serde_json::to_string(&track_state).unwrap();
+    assert_eq!(json, r#""track-state""#);
+
+    // Test TrackState deserialization
+    let deserialized: MessageType = serde_json::from_str(r#""track-state""#).unwrap();
+    assert_eq!(deserialized, MessageType::TrackState);
+  }
+
+  #[test]
+  fn test_ws_message_with_track_state() {
+    let msg = WsMessage {
+      msg_type: MessageType::TrackState,
+      from: "user1".to_string(),
+      to: "all".to_string(),
+      data: serde_json::json!({
+        "kind": "video",
+        "enabled": false
+      }),
+    };
+
+    let json = serde_json::to_string(&msg).unwrap();
+    println!("Serialized message: {}", json);
+
+    // Deserialize back
+    let deserialized: WsMessage = serde_json::from_str(&json).unwrap();
+    assert_eq!(deserialized.msg_type, MessageType::TrackState);
+  }
+}

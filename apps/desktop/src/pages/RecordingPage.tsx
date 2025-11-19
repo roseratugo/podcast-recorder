@@ -262,6 +262,11 @@ export default function RecordingPage(): ReactElement {
                 isMuted: true, // Will be updated when tracks are received
                 isVideoOn: false, // Will be updated when tracks are received
               });
+
+              // Send current track states to the new participant
+              if (webrtcManagerRef.current && localStream) {
+                webrtcManagerRef.current.sendCurrentTrackStates(participantId, localStream);
+              }
             },
 
             onParticipantLeft: (participantId) => {
@@ -279,13 +284,13 @@ export default function RecordingPage(): ReactElement {
                 videoElement.srcObject = stream;
               }
 
-              // Set initial track state - always enabled when track first arrives
+              // Set initial track state based on the actual track.enabled value
               if (track.kind === 'video') {
-                console.log(`Initial video track for ${participantId}`);
-                updateParticipantVideo(participantId, true);
+                console.log(`Initial video track for ${participantId}, enabled: ${track.enabled}`);
+                updateParticipantVideo(participantId, track.enabled);
               } else if (track.kind === 'audio') {
-                console.log(`Initial audio track for ${participantId}`);
-                updateParticipantMuted(participantId, false);
+                console.log(`Initial audio track for ${participantId}, enabled: ${track.enabled}`);
+                updateParticipantMuted(participantId, !track.enabled);
               }
 
               // Update participant with stream

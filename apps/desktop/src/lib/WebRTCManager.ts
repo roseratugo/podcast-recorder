@@ -205,11 +205,29 @@ export class WebRTCManager {
   /**
    * Notify peers of local track state change
    */
-  notifyTrackStateChange(kind: 'video' | 'audio', enabled: boolean): void {
+  notifyTrackStateChange(kind: 'video' | 'audio', enabled: boolean, to: string = 'all'): void {
     console.log(
-      `WebRTCManager: Notifying track state change: ${kind} ${enabled ? 'enabled' : 'disabled'}`
+      `WebRTCManager: Notifying track state change to ${to}: ${kind} ${enabled ? 'enabled' : 'disabled'}`
     );
-    this.signalingClient.sendTrackStateChange(kind, enabled);
+    this.signalingClient.sendTrackStateChange(kind, enabled, to);
+  }
+
+  /**
+   * Send current track states to a specific participant
+   * Used when a new participant joins to sync initial state
+   */
+  sendCurrentTrackStates(participantId: string, localStream: MediaStream): void {
+    console.log(`WebRTCManager: Sending current track states to ${participantId}`);
+
+    const videoTrack = localStream.getVideoTracks()[0];
+    if (videoTrack) {
+      this.signalingClient.sendTrackStateChange('video', videoTrack.enabled, participantId);
+    }
+
+    const audioTrack = localStream.getAudioTracks()[0];
+    if (audioTrack) {
+      this.signalingClient.sendTrackStateChange('audio', audioTrack.enabled, participantId);
+    }
   }
 
   /**
