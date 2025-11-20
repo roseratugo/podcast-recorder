@@ -111,9 +111,11 @@ export function useCloudfareCalls(options: UseCloudflareCallsOptions): {
   }, [appId]);
 
   // Create session and initialize
-  const connect = useCallback(async () => {
+  const connect = useCallback(async (): Promise<string> => {
     const client = clientRef.current;
-    if (!client) return;
+    if (!client) {
+      throw new Error('Client not initialized');
+    }
 
     try {
       await client.initialize();
@@ -151,7 +153,7 @@ export function useCloudfareCalls(options: UseCloudflareCallsOptions): {
   const subscribeToParticipantRef =
     useRef<
       (participantSessionId: string, trackNames: string[], retryCount?: number) => Promise<void>
-    >();
+    >(null);
 
   const subscribeToParticipant = useCallback(
     async (participantSessionId: string, trackNames: string[], retryCount = 0): Promise<void> => {
