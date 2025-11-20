@@ -13,13 +13,7 @@ const crypto = webcrypto;
 
 async function hashPassword(password, salt) {
 	const encoder = new TextEncoder();
-	const keyMaterial = await crypto.subtle.importKey(
-		'raw',
-		encoder.encode(password),
-		'PBKDF2',
-		false,
-		['deriveBits']
-	);
+	const keyMaterial = await crypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, ['deriveBits']);
 
 	const derivedBits = await crypto.subtle.deriveBits(
 		{
@@ -29,7 +23,7 @@ async function hashPassword(password, salt) {
 			hash: 'SHA-256',
 		},
 		keyMaterial,
-		256
+		256,
 	);
 
 	return Buffer.from(derivedBits).toString('base64');
