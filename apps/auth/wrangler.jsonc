@@ -6,6 +6,12 @@
 	"observability": {
 		"enabled": true
 	},
+	"routes": [
+		{
+			"pattern": "auth.call.collectif-pixel.fr",
+			"custom_domain": true
+		}
+	],
 	"kv_namespaces": [
 		{
 			"binding": "FOUNDER_MEMBERS",
