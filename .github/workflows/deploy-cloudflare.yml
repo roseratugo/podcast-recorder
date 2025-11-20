@@ -25,7 +25,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: 'apps/auth'
           wranglerVersion: '4'
-          configPath: './wrangler.jsonc'
+          command: deploy -c wrangler.jsonc
 
       - name: Deploy Signaling Worker
         uses: cloudflare/wrangler-action@v3
@@ -33,4 +33,4 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: 'apps/signaling'
           wranglerVersion: '4'
-          configPath: './wrangler.jsonc'
+          command: deploy -c wrangler.jsonc
