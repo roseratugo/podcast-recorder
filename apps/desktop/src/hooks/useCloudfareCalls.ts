@@ -16,7 +16,21 @@ export interface RemoteParticipant {
   videoTrack?: MediaStreamTrack;
 }
 
-export function useCloudfareCalls(options: UseCloudflareCallsOptions) {
+export function useCloudfareCalls(options: UseCloudflareCallsOptions): {
+  sessionId: string | null;
+  isConnected: boolean;
+  localTracks: TrackInfo[];
+  remoteParticipants: Map<string, RemoteParticipant>;
+  connect: () => Promise<string>;
+  publishTracks: (tracks: MediaStreamTrack[]) => Promise<TrackInfo[]>;
+  subscribeToParticipant: (
+    participantSessionId: string,
+    trackNames: string[],
+    retryCount?: number
+  ) => Promise<void>;
+  setTrackEnabled: (trackName: string, enabled: boolean) => Promise<void>;
+  disconnect: () => Promise<void>;
+} {
   const { appId, signalingUrl, onTrackAdded, onTrackRemoved, onError } = options;
 
   const clientRef = useRef<CloudflareCalls | null>(null);
@@ -134,8 +148,13 @@ export function useCloudfareCalls(options: UseCloudflareCallsOptions) {
   );
 
   // Subscribe to remote participant tracks
+  const subscribeToParticipantRef =
+    useRef<
+      (participantSessionId: string, trackNames: string[], retryCount?: number) => Promise<void>
+    >();
+
   const subscribeToParticipant = useCallback(
-    async (participantSessionId: string, trackNames: string[], retryCount = 0) => {
+    async (participantSessionId: string, trackNames: string[], retryCount = 0): Promise<void> => {
       const client = clientRef.current;
       if (!client || !client.getSessionId()) {
         throw new Error('Must connect before subscribing');
@@ -153,9 +172,15 @@ export function useCloudfareCalls(options: UseCloudflareCallsOptions) {
 
         // Retry on "Track not found" errors (timing issue)
         if (errorMessage.includes('Track not found') && retryCount < 3) {
-          console.log(`Track not found, retrying in ${(retryCount + 1) * 500}ms... (attempt ${retryCount + 1}/3)`);
-          await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 500));
-          return subscribeToParticipant(participantSessionId, trackNames, retryCount + 1);
+          console.log(
+            `Track not found, retrying in ${(retryCount + 1) * 500}ms... (attempt ${retryCount + 1}/3)`
+          );
+          await new Promise((resolve) => setTimeout(resolve, (retryCount + 1) * 500));
+          return subscribeToParticipantRef.current?.(
+            participantSessionId,
+            trackNames,
+            retryCount + 1
+          );
         }
 
         onError?.(error as Error);
@@ -164,6 +189,11 @@ export function useCloudfareCalls(options: UseCloudflareCallsOptions) {
     },
     [signalingUrl, onError]
   );
+
+  // Keep ref updated
+  useEffect(() => {
+    subscribeToParticipantRef.current = subscribeToParticipant;
+  }, [subscribeToParticipant]);
 
   // Update track state (mute/unmute)
   const setTrackEnabled = useCallback(async (trackName: string, enabled: boolean) => {

@@ -30,25 +30,25 @@ Cloudflare Worker for WebRTC signaling with Cloudflare Calls SFU integration.
 
 ### Rooms
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/rooms` | Create a new room |
-| GET | `/api/rooms/:id` | Get room info |
-| POST | `/api/rooms/:id/join` | Join a room (get token) |
+| Method | Endpoint              | Description             |
+| ------ | --------------------- | ----------------------- |
+| POST   | `/api/rooms`          | Create a new room       |
+| GET    | `/api/rooms/:id`      | Get room info           |
+| POST   | `/api/rooms/:id/join` | Join a room (get token) |
 
 ### WebSocket
 
-| Endpoint | Description |
-|----------|-------------|
+| Endpoint          | Description                        |
+| ----------------- | ---------------------------------- |
 | `/ws?token=<jwt>` | WebSocket connection for signaling |
 
 ### Cloudflare Calls Proxy
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/cloudflare/session` | Create SFU session |
-| POST | `/cloudflare/session/:id/tracks/new` | Add tracks |
-| PUT | `/cloudflare/session/:id/renegotiate` | Renegotiate session |
+| Method | Endpoint                              | Description         |
+| ------ | ------------------------------------- | ------------------- |
+| POST   | `/cloudflare/session`                 | Create SFU session  |
+| POST   | `/cloudflare/session/:id/tracks/new`  | Add tracks          |
+| PUT    | `/cloudflare/session/:id/renegotiate` | Renegotiate session |
 
 ## Setup
 
@@ -87,17 +87,17 @@ pnpm deploy
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
+| Variable            | Description             |
+| ------------------- | ----------------------- |
 | `CLOUDFLARE_APP_ID` | Cloudflare Calls App ID |
-| `CORS_ORIGIN` | Allowed CORS origin |
+| `CORS_ORIGIN`       | Allowed CORS origin     |
 
 ## Secrets
 
-| Secret | Description |
-|--------|-------------|
-| `JWT_SECRET` | Secret for signing JWT tokens |
-| `CLOUDFLARE_APP_SECRET` | Cloudflare Calls API secret |
+| Secret                  | Description                   |
+| ----------------------- | ----------------------------- |
+| `JWT_SECRET`            | Secret for signing JWT tokens |
+| `CLOUDFLARE_APP_SECRET` | Cloudflare Calls API secret   |
 
 ## WebSocket Messages
 
