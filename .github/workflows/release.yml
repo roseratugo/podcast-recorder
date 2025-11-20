@@ -100,10 +100,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get version from package.json
+      - name: Get version from latest tag
         id: version
         run: |
-          VERSION=$(jq -r '.version' package.json)
+          VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Download all artifacts
