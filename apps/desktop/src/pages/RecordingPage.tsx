@@ -342,17 +342,19 @@ export default function RecordingPage(): ReactElement {
         ws.onopen = () => {
           console.log('WebSocket connected');
           console.log('Broadcasting cloudflare-session with tracks:', localTracksRef.current);
-          ws.send(JSON.stringify({
-            type: 'cloudflare-session',
-            roomId,
-            participantId: roomInfo.participantId,
-            participantName: roomInfo.userName,
-            sessionId,
-            tracks: localTracksRef.current.map(t => ({
-              trackName: t.trackName,
-              kind: t.kind,
-            })),
-          }));
+          ws.send(
+            JSON.stringify({
+              type: 'cloudflare-session',
+              roomId,
+              participantId: roomInfo.participantId,
+              participantName: roomInfo.userName,
+              sessionId,
+              tracks: localTracksRef.current.map((t) => ({
+                trackName: t.trackName,
+                kind: t.kind,
+              })),
+            })
+          );
         };
 
         ws.onmessage = async (event) => {
@@ -363,11 +365,18 @@ export default function RecordingPage(): ReactElement {
             switch (message.type) {
               case 'cloudflare-session': {
                 // Another participant announced their session
-                const { participantId, participantName, sessionId: remoteSessionId, tracks: remoteTracks } = message;
+                const {
+                  participantId,
+                  participantName,
+                  sessionId: remoteSessionId,
+                  tracks: remoteTracks,
+                } = message;
 
                 if (participantId === roomInfo.participantId) return;
 
-                console.log(`Participant ${participantName} joined with session ${remoteSessionId}`);
+                console.log(
+                  `Participant ${participantName} joined with session ${remoteSessionId}`
+                );
 
                 // Store mapping from sessionId to participantId
                 sessionToParticipantRef.current.set(remoteSessionId, participantId);
@@ -500,7 +509,6 @@ export default function RecordingPage(): ReactElement {
         ws.onclose = () => {
           console.log('WebSocket disconnected');
         };
-
       } catch (error) {
         console.error('Failed to initialize Cloudflare Calls:', error);
       }
@@ -515,7 +523,7 @@ export default function RecordingPage(): ReactElement {
         wsRef.current = null;
       }
       // Clean up audio elements
-      document.querySelectorAll('[id^="audio-"]').forEach(el => el.remove());
+      document.querySelectorAll('[id^="audio-"]').forEach((el) => el.remove());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, localStream]);
@@ -661,15 +669,17 @@ export default function RecordingPage(): ReactElement {
 
     // Notify remote peers of audio state change via WebSocket
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({
-        type: 'track-state',
-        kind: 'audio',
-        enabled: !newMutedState,
-      }));
+      wsRef.current.send(
+        JSON.stringify({
+          type: 'track-state',
+          kind: 'audio',
+          enabled: !newMutedState,
+        })
+      );
     }
 
     // Update track in Cloudflare
-    const audioTrackInfo = localTracksRef.current.find(t => t.kind === 'audio');
+    const audioTrackInfo = localTracksRef.current.find((t) => t.kind === 'audio');
     if (audioTrackInfo) {
       cloudflare.setTrackEnabled(audioTrackInfo.trackName, !newMutedState);
     }
@@ -700,15 +710,17 @@ export default function RecordingPage(): ReactElement {
 
     // Notify remote peers of video state change via WebSocket
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({
-        type: 'track-state',
-        kind: 'video',
-        enabled: newVideoState,
-      }));
+      wsRef.current.send(
+        JSON.stringify({
+          type: 'track-state',
+          kind: 'video',
+          enabled: newVideoState,
+        })
+      );
     }
 
     // Update track in Cloudflare
-    const videoTrackInfo = localTracksRef.current.find(t => t.kind === 'video');
+    const videoTrackInfo = localTracksRef.current.find((t) => t.kind === 'video');
     if (videoTrackInfo) {
       cloudflare.setTrackEnabled(videoTrackInfo.trackName, newVideoState);
     }

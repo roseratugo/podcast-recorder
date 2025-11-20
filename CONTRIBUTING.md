@@ -59,6 +59,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/):
 - `chore:` - Maintenance tasks
 
 With optional emoji:
+
 - ✨ `feat` - New feature
 - 🐛 `fix` - Bug fix
 - 📚 `docs` - Documentation

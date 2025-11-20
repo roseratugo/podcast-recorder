@@ -73,9 +73,7 @@ await client.initialize();
 const tracks = await client.pushTracks([audioTrack, videoTrack], signalingUrl);
 
 // Pull remote tracks
-await client.pullTracks([
-  { sessionId: 'remote-session', trackName: 'audio-track' }
-], signalingUrl);
+await client.pullTracks([{ sessionId: 'remote-session', trackName: 'audio-track' }], signalingUrl);
 ```
 
 ### SignalingClient
@@ -95,21 +93,21 @@ signaling.sendCloudflareSession(roomId, participantId, sessionId, tracks);
 
 ## Pages
 
-| Route | Description |
-|-------|-------------|
-| `/` | Home page |
-| `/room/create` | Create new room |
-| `/room/join` | Join existing room |
-| `/recording/:roomId` | Recording session |
-| `/settings` | App settings |
+| Route                | Description        |
+| -------------------- | ------------------ |
+| `/`                  | Home page          |
+| `/room/create`       | Create new room    |
+| `/room/join`         | Join existing room |
+| `/recording/:roomId` | Recording session  |
+| `/settings`          | App settings       |
 
 ## Keyboard Shortcuts
 
-| Key | Action |
-|-----|--------|
-| `Space` | Toggle recording |
-| `M` | Toggle microphone |
-| `V` | Toggle camera |
+| Key     | Action            |
+| ------- | ----------------- |
+| `Space` | Toggle recording  |
+| `M`     | Toggle microphone |
+| `V`     | Toggle camera     |
 
 ## Build
 

@@ -136,14 +136,14 @@ Configure in `apps/signaling/wrangler.jsonc`:
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev:desktop` | Start desktop app in dev mode |
-| `pnpm dev:signaling` | Start signaling server locally |
-| `pnpm build` | Build all packages |
-| `pnpm tauri:build` | Build desktop app for distribution |
-| `pnpm lint` | Lint all packages |
-| `pnpm format` | Format all files |
+| Command              | Description                        |
+| -------------------- | ---------------------------------- |
+| `pnpm dev:desktop`   | Start desktop app in dev mode      |
+| `pnpm dev:signaling` | Start signaling server locally     |
+| `pnpm build`         | Build all packages                 |
+| `pnpm tauri:build`   | Build desktop app for distribution |
+| `pnpm lint`          | Lint all packages                  |
+| `pnpm format`        | Format all files                   |
 
 ## Contributing
 

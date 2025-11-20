@@ -30,9 +30,7 @@
   "bundle": {
     "active": true,
     "targets": ["dmg", "app"],
-    "icon": [
-      "icons/icon.png"
-    ],
+    "icon": ["icons/icon.png"],
     "macOS": {
       "minimumSystemVersion": "10.15"
     }

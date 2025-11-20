@@ -130,10 +130,7 @@ export class CloudflareCalls {
   /**
    * Push local tracks to Cloudflare
    */
-  async pushTracks(
-    tracks: MediaStreamTrack[],
-    signalingUrl: string
-  ): Promise<TrackInfo[]> {
+  async pushTracks(tracks: MediaStreamTrack[], signalingUrl: string): Promise<TrackInfo[]> {
     if (!this.peerConnection || !this.sessionId) {
       throw new Error('Must initialize and create session first');
     }
@@ -161,23 +158,26 @@ export class CloudflareCalls {
     await this.peerConnection.setLocalDescription(offer);
 
     // Send to Cloudflare via our signaling server
-    const response = await fetch(`${signalingUrl}/cloudflare/session/${this.sessionId}/tracks/new`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        sessionDescription: {
-          type: 'offer',
-          sdp: offer.sdp,
+    const response = await fetch(
+      `${signalingUrl}/cloudflare/session/${this.sessionId}/tracks/new`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        tracks: trackInfos.map(t => ({
-          location: 'local',
-          trackName: t.trackName,
-          mid: this.transceivers.get(t.trackName)?.mid,
-        })),
-      }),
-    });
+        body: JSON.stringify({
+          sessionDescription: {
+            type: 'offer',
+            sdp: offer.sdp,
+          },
+          tracks: trackInfos.map((t) => ({
+            location: 'local',
+            trackName: t.trackName,
+            mid: this.transceivers.get(t.trackName)?.mid,
+          })),
+        }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Failed to push tracks: ${response.statusText}`);
@@ -202,28 +202,28 @@ export class CloudflareCalls {
   /**
    * Pull remote tracks from other participants
    */
-  async pullTracks(
-    tracksToPull: PullTrackRequest[],
-    signalingUrl: string
-  ): Promise<void> {
+  async pullTracks(tracksToPull: PullTrackRequest[], signalingUrl: string): Promise<void> {
     if (!this.peerConnection || !this.sessionId) {
       throw new Error('Must initialize and create session first');
     }
 
     // Request tracks from Cloudflare - NO sessionDescription, Cloudflare will generate the offer
-    const response = await fetch(`${signalingUrl}/cloudflare/session/${this.sessionId}/tracks/new`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        tracks: tracksToPull.map(t => ({
-          location: 'remote',
-          sessionId: t.sessionId,
-          trackName: t.trackName,
-        })),
-      }),
-    });
+    const response = await fetch(
+      `${signalingUrl}/cloudflare/session/${this.sessionId}/tracks/new`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tracks: tracksToPull.map((t) => ({
+            location: 'remote',
+            sessionId: t.sessionId,
+            trackName: t.trackName,
+          })),
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -237,7 +237,9 @@ export class CloudflareCalls {
       const errors = data.tracks.filter((t: { errorCode?: string }) => t.errorCode);
       if (errors.length > 0) {
         console.error('Track pull errors:', errors);
-        throw new Error(`Failed to pull tracks: ${errors[0].errorDescription || errors[0].errorCode}`);
+        throw new Error(
+          `Failed to pull tracks: ${errors[0].errorDescription || errors[0].errorCode}`
+        );
       }
 
       // Store mid → trackName mapping for ontrack handler
@@ -266,18 +268,21 @@ export class CloudflareCalls {
 
     // Send answer back to Cloudflare via renegotiate
     if (data.requiresImmediateRenegotiation) {
-      const renegotiateResponse = await fetch(`${signalingUrl}/cloudflare/session/${this.sessionId}/renegotiate`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sessionDescription: {
-            type: 'answer',
-            sdp: answer.sdp,
+      const renegotiateResponse = await fetch(
+        `${signalingUrl}/cloudflare/session/${this.sessionId}/renegotiate`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
           },
-        }),
-      });
+          body: JSON.stringify({
+            sessionDescription: {
+              type: 'answer',
+              sdp: answer.sdp,
+            },
+          }),
+        }
+      );
 
       if (!renegotiateResponse.ok) {
         const errorText = await renegotiateResponse.text();
@@ -285,7 +290,10 @@ export class CloudflareCalls {
       }
     }
 
-    console.log('Successfully pulled tracks:', tracksToPull.map(t => t.trackName));
+    console.log(
+      'Successfully pulled tracks:',
+      tracksToPull.map((t) => t.trackName)
+    );
   }
 
   /**
