@@ -419,12 +419,19 @@ export class PeerManager {
         const state = this.getNegotiationState(peerId);
         const pc = this.peers.get(peerId);
 
-        if (state === 'waiting-for-answer' && pc?.localDescription) {
+        // Peer was removed
+        if (!pc) {
+          clearInterval(checkComplete);
+          reject(new Error('Peer connection was closed'));
+          return;
+        }
+
+        if (state === 'waiting-for-answer' && pc.localDescription) {
           clearInterval(checkComplete);
           resolve(pc.localDescription.toJSON());
         }
 
-        if (state === 'stable' && pc?.localDescription) {
+        if (state === 'stable' && pc.localDescription) {
           clearInterval(checkComplete);
           resolve(pc.localDescription.toJSON());
         }
@@ -453,7 +460,14 @@ export class PeerManager {
         const state = this.getNegotiationState(peerId);
         const pc = this.peers.get(peerId);
 
-        if (state === 'stable' && pc?.localDescription) {
+        // Peer was removed
+        if (!pc) {
+          clearInterval(checkComplete);
+          reject(new Error('Peer connection was closed'));
+          return;
+        }
+
+        if (state === 'stable' && pc.localDescription) {
           clearInterval(checkComplete);
           resolve(pc.localDescription.toJSON());
         }
@@ -499,7 +513,14 @@ export class PeerManager {
         const state = this.getNegotiationState(peerId);
         const pc = this.peers.get(peerId);
 
-        if (state === 'waiting-for-answer' && pc?.localDescription) {
+        // Peer was removed
+        if (!pc) {
+          clearInterval(checkComplete);
+          reject(new Error('Peer connection was closed'));
+          return;
+        }
+
+        if (state === 'waiting-for-answer' && pc.localDescription) {
           clearInterval(checkComplete);
           resolve(pc.localDescription.toJSON());
         }
