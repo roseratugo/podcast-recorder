@@ -240,6 +240,21 @@
   animation: pulse 2s ease-in-out infinite;
 }
 
+.state.gathering {
+  background: #f59e0b;
+  color: white;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.queued-count {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #e5e7eb;
+  color: #374151;
+}
+
 @keyframes pulse {
   0%,
   100% {
