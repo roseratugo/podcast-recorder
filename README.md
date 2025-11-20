@@ -145,6 +145,12 @@ Configure in `apps/signaling/wrangler.jsonc`:
 | `pnpm lint` | Lint all packages |
 | `pnpm format` | Format all files |
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
+
 ## License
 
-MIT
+MIT + Commons Clause - See [LICENSE](LICENSE)
+
+This means you can use, modify, and distribute freely, but you cannot sell the software commercially.
