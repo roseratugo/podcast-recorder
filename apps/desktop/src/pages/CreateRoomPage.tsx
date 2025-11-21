@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect, type ReactElement } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../components/Button';
-import { Input } from '../components/ui';
+import { Button, Input, AbstractBackground } from '../components/ui';
 import PreJoinScreen, { JoinSettings } from '../components/PreJoinScreen';
 import { createRoom, joinRoom, login, getMe, AuthUser } from '../lib/signalingApi';
 import './CreateRoomPage.css';
@@ -129,90 +128,94 @@ export default function CreateRoomPage(): ReactElement {
 
   if (isCheckingAuth) {
     return (
-      <div className="create-room-page">
-        <div className="room-card">
-          <div className="room-card-header">
-            <h1>Loading...</h1>
+      <AbstractBackground>
+        <div className="create-room-page">
+          <div className="room-card">
+            <div className="room-card-header">
+              <h1>Loading...</h1>
+            </div>
           </div>
         </div>
-      </div>
+      </AbstractBackground>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <div className="create-room-page">
-        <div className="room-card">
-          <div className="room-card-header">
-            <h1>Founder Member Login</h1>
-            <p>Login to create recording rooms</p>
-          </div>
-
-          <div className="room-form">
-            <div className="form-group">
-              <label htmlFor="email" className="form-label">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoggingIn}
-                className="input"
-              />
+      <AbstractBackground>
+        <div className="create-room-page">
+          <div className="room-card">
+            <div className="room-card-header">
+              <h1>Founder Member Login</h1>
+              <p>Login to create recording rooms</p>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="password" className="form-label">
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoggingIn}
-                className="input"
-                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-              />
-            </div>
-
-            {error && (
-              <div className="alert alert-error">
-                <p>{error}</p>
+            <div className="room-form">
+              <div className="form-group">
+                <label htmlFor="email" className="form-label">
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoggingIn}
+                  className="input"
+                />
               </div>
-            )}
-          </div>
 
-          <div className="room-actions">
-            <Button
-              variant="primary"
-              className="btn btn-primary btn-full"
-              onClick={handleLogin}
-              disabled={isLoggingIn}
-            >
-              {isLoggingIn ? 'Logging in...' : 'Login'}
-            </Button>
+              <div className="form-group">
+                <label htmlFor="password" className="form-label">
+                  Password
+                </label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoggingIn}
+                  className="input"
+                  onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                />
+              </div>
 
-            <Button
-              variant="ghost"
-              className="btn btn-ghost btn-full"
-              onClick={() => navigate('/')}
-              disabled={isLoggingIn}
-            >
-              Back to Home
-            </Button>
+              {error && (
+                <div className="alert alert-error">
+                  <p>{error}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="room-actions">
+              <Button
+                variant="primary"
+                className="btn btn-primary btn-full"
+                onClick={handleLogin}
+                disabled={isLoggingIn}
+              >
+                {isLoggingIn ? 'Logging in...' : 'Login'}
+              </Button>
+
+              <Button
+                variant="ghost"
+                className="btn btn-ghost btn-full"
+                onClick={() => navigate('/')}
+                disabled={isLoggingIn}
+              >
+                Back to Home
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      </AbstractBackground>
     );
   }
 
   return (
-    <>
+    <AbstractBackground>
       {showPreJoin && (
         <PreJoinScreen
           roomName={roomName}
@@ -301,6 +304,6 @@ export default function CreateRoomPage(): ReactElement {
           </div>
         </div>
       </div>
-    </>
+    </AbstractBackground>
   );
 }
