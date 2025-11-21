@@ -1,5 +1,5 @@
 {
-  "name": "@podcast-recorder/ui",
+  "name": "@okarin/ui",
   "version": "0.1.0",
   "description": "Shared UI components for podcast recorder",
   "main": "./dist/index.js",

@@ -53,7 +53,7 @@ export default function HomePage(): ReactElement {
       <div className="home-content">
         <div className="home-header">
           <h1 className="home-title" onClick={handleTitleClick} style={{ cursor: 'default' }}>
-            {appName || 'Podcast Recorder'}
+            {appName || 'Okarin'}
           </h1>
           <p className="home-subtitle">Record, collaborate, and create amazing podcasts together</p>
           {appVersion && <p className="home-version">Version {appVersion}</p>}

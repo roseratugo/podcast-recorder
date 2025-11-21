@@ -82,7 +82,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build UI package
-        run: pnpm --filter @podcast-recorder/ui build
+        run: pnpm --filter @okarin/ui build
 
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
@@ -142,23 +142,23 @@ jobs:
       - name: Generate latest.json for updater
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          REPO="roseratugo/podcast-recorder"
+          REPO="roseratugo/okarin"
 
           # Read signatures
           MACOS_SIG=""
           WINDOWS_SIG=""
           LINUX_SIG=""
 
-          if [ -f "release-files/Podcast Recorder.app.tar.gz.sig" ]; then
-            MACOS_SIG=$(cat "release-files/Podcast Recorder.app.tar.gz.sig")
+          if [ -f "release-files/Okarin.app.tar.gz.sig" ]; then
+            MACOS_SIG=$(cat "release-files/Okarin.app.tar.gz.sig")
           fi
 
-          if [ -f "release-files/Podcast Recorder_${VERSION}_x64-setup.msi.zip.sig" ]; then
-            WINDOWS_SIG=$(cat "release-files/Podcast Recorder_${VERSION}_x64-setup.msi.zip.sig")
+          if [ -f "release-files/Okarin_${VERSION}_x64-setup.msi.zip.sig" ]; then
+            WINDOWS_SIG=$(cat "release-files/Okarin_${VERSION}_x64-setup.msi.zip.sig")
           fi
 
-          if [ -f "release-files/podcast-recorder_${VERSION}_amd64.AppImage.tar.gz.sig" ]; then
-            LINUX_SIG=$(cat "release-files/podcast-recorder_${VERSION}_amd64.AppImage.tar.gz.sig")
+          if [ -f "release-files/okarin_${VERSION}_amd64.AppImage.tar.gz.sig" ]; then
+            LINUX_SIG=$(cat "release-files/okarin_${VERSION}_amd64.AppImage.tar.gz.sig")
           fi
 
           cat > release-files/latest.json << EOF
@@ -176,7 +176,7 @@ jobs:
                 "signature": "${WINDOWS_SIG}"
               },
               "linux-x86_64": {
-                "url": "https://github.com/${REPO}/releases/download/v${VERSION}/podcast-recorder_${VERSION}_amd64.AppImage.tar.gz",
+                "url": "https://github.com/${REPO}/releases/download/v${VERSION}/okarin_${VERSION}_amd64.AppImage.tar.gz",
                 "signature": "${LINUX_SIG}"
               }
             }

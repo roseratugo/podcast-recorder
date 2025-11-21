@@ -1,4 +1,4 @@
-# Podcast Recorder
+# Okarin
 
 Professional podcast recording application with local high-quality recording for distributed teams.
 
@@ -20,7 +20,7 @@ This is a monorepo managed with pnpm workspaces containing:
 - `packages/ui` - Reusable React components
 
 ```
-podcast-recorder/
+okarin/
 ├── apps/
 │   ├── desktop/          # Tauri + React desktop app
 │   └── signaling/        # Cloudflare Worker signaling server

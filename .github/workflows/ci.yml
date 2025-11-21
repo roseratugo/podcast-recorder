@@ -62,7 +62,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build UI package
-        run: pnpm --filter @podcast-recorder/ui build
+        run: pnpm --filter @okarin/ui build
 
   typecheck:
     name: Type Check
@@ -86,7 +86,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build UI package
-        run: pnpm --filter @podcast-recorder/ui build
+        run: pnpm --filter @okarin/ui build
 
       - name: Run TypeScript type check
         run: pnpm typecheck

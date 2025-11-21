@@ -33,7 +33,7 @@ fn get_recording_directory() -> Result<PathBuf, String> {
         .or_else(dirs::home_dir)
         .ok_or_else(|| "Could not determine home or audio directory".to_string())?;
 
-    let recording_dir = base_dir.join("Podcast Recorder");
+    let recording_dir = base_dir.join("Okarin");
 
     std::fs::create_dir_all(&recording_dir)
         .map_err(|e| format!("Failed to create recording directory: {}", e))?;

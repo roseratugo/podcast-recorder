@@ -1,5 +1,5 @@
 import { type ReactElement } from 'react';
-import { useMediaDevices } from '@podcast-recorder/ui';
+import { useMediaDevices } from '@okarin/ui';
 import { useSettingsStore } from '../stores';
 
 type DeviceSelectorProps = {

@@ -73,7 +73,7 @@ importers:
 
   apps/desktop:
     dependencies:
-      '@podcast-recorder/ui':
+      '@okarin/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@tauri-apps/api':

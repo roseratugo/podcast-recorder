@@ -1,7 +1,7 @@
 {
-  "productName": "Podcast Recorder",
+  "productName": "Okarin",
   "version": "0.1.0",
-  "identifier": "com.podcast.recorder",
+  "identifier": "com.okarin.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "pnpm build",
@@ -11,7 +11,7 @@
   "app": {
     "windows": [
       {
-        "title": "Podcast Recorder",
+        "title": "Okarin",
         "width": 1200,
         "height": 800,
         "minWidth": 800,
@@ -54,9 +54,7 @@
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDgwNjg2NUVDOEU0NTYzMjkKUldRcFkwV083R1ZvZ0RqaDVPSjc0Ri9LOXpqU0ZRODhrb3hmMTlVb0x2eWc5d0xPaUhneGNPTFkK",
-      "endpoints": [
-        "https://github.com/roseratugo/podcast-recorder/releases/latest/download/latest.json"
-      ]
+      "endpoints": ["https://github.com/roseratugo/okarin/releases/latest/download/latest.json"]
     }
   }
 }

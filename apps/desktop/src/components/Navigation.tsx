@@ -22,7 +22,7 @@ export default function Navigation(): ReactElement {
   useEffect(() => {
     invoke<string>('get_app_name')
       .then(setAppName)
-      .catch(() => setAppName('Podcast Recorder'));
+      .catch(() => setAppName('Okarin'));
 
     const token = localStorage.getItem('authToken');
     if (token) {

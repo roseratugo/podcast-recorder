@@ -1,6 +1,6 @@
 import { useState, type ReactElement } from 'react';
 import PreJoinScreen, { JoinSettings } from '../components/PreJoinScreen';
-import { Button } from '@podcast-recorder/ui';
+import { Button } from '@okarin/ui';
 
 export default function TestPreJoin(): ReactElement {
   const [showPreJoin, setShowPreJoin] = useState(false);

@@ -1,5 +1,5 @@
 {
-  "name": "@podcast-recorder/desktop",
+  "name": "@okarin/desktop",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -16,7 +16,7 @@
     "clean": "rimraf dist node_modules src-tauri/target"
   },
   "dependencies": {
-    "@podcast-recorder/ui": "workspace:*",
+    "@okarin/ui": "workspace:*",
     "@tauri-apps/api": "^2.9.0",
     "@tauri-apps/plugin-dialog": "^2.4.2",
     "@tauri-apps/plugin-process": "^2.3.1",

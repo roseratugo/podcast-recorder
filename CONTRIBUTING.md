@@ -1,6 +1,6 @@
-# Contributing to Podcast Recorder
+# Contributing to Okarin
 
-Thank you for your interest in contributing to Podcast Recorder! This document provides guidelines and information for contributors.
+Thank you for your interest in contributing to Okarin! This document provides guidelines and information for contributors.
 
 ## Code of Conduct
 
@@ -10,7 +10,7 @@ Please be respectful and constructive in all interactions. We welcome contributo
 
 ### Reporting Bugs
 
-1. Check if the issue already exists in [GitHub Issues](https://github.com/roseratugo/podcast-recorder/issues)
+1. Check if the issue already exists in [GitHub Issues](https://github.com/roseratugo/okarin/issues)
 2. If not, create a new issue with:
    - Clear title and description
    - Steps to reproduce
@@ -36,8 +36,8 @@ Please be respectful and constructive in all interactions. We welcome contributo
 
 ```bash
 # Clone your fork
-git clone https://github.com/roseratugo/podcast-recorder.git
-cd podcast-recorder
+git clone https://github.com/roseratugo/okarin.git
+cd okarin
 
 # Install dependencies
 pnpm install

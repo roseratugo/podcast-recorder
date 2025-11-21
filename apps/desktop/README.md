@@ -117,7 +117,7 @@ signaling.sendCloudflareSession(roomId, participantId, sessionId, tracks);
 pnpm tauri:build
 ```
 
-Output: `src-tauri/target/release/bundle/dmg/Podcast Recorder_x.x.x_aarch64.dmg`
+Output: `src-tauri/target/release/bundle/dmg/Okarin_x.x.x_aarch64.dmg`
 
 ### Code Signing (requires Apple Developer)
 

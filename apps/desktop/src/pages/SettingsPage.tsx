@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, type ReactElement } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
-import { Input } from '@podcast-recorder/ui';
+import { Input } from '@okarin/ui';
 import { invoke } from '@tauri-apps/api/core';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { useSettingsStore } from '../stores';
@@ -439,7 +439,7 @@ export default function SettingsPage(): ReactElement {
           <div className="settings-card">
             <h2>About</h2>
             <div className="settings-about">
-              <p>Podcast Recorder Desktop Application</p>
+              <p>Okarin Desktop Application</p>
               {appVersion && <p>Version: {appVersion}</p>}
               <p>Built with Tauri, React, and TypeScript</p>
               <p style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#9ca3af' }}>

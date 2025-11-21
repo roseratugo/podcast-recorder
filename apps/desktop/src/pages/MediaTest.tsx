@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, type ReactElement } from 'react';
-import { Button } from '@podcast-recorder/ui';
+import { Button } from '@okarin/ui';
 
 export default function MediaTest(): ReactElement {
   const videoRef = useRef<HTMLVideoElement>(null);
