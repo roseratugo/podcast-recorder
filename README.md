@@ -1,16 +1,14 @@
 <div align="center">
-  <h1>Okarin</h1>
-  <p>Local-first podcast recording for distributed teams</p>
+  <img src="./.github/assets/thumbnail.jpg" alt="@boringnode/bus">
 </div>
-
-<br />
 
 <div align="center">
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tauri](https://img.shields.io/badge/Tauri-2.9-24C8D8?logo=tauri&logoColor=white)](https://tauri.app/)
-[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![typescript-image]][typescript-url]
+[![tauri-image]][tauri-url]
+[![cloudflare-image]][cloudflare-url]
+[![gh-workflow-image]][gh-workflow-url]
+[![licence-image]][licence-url]
 
 </div>
 
@@ -132,3 +130,14 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 [MIT + Commons Clause](LICENSE)
 
 Free to use, modify, and distribute. Commercial sale prohibited.
+
+[typescript-image]: https://img.shields.io/badge/Typescript-294E80.svg?style=for-the-badge&logo=typescript
+[typescript-url]: https://www.typescriptlang.org
+[tauri-image]: https://img.shields.io/badge/tauri-%2324C8DB.svg?style=for-the-badge&logo=tauri&logoColor=%23FFFFFF
+[tauri-url]: https://v2.tauri.app
+[cloudflare-image]: https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=Cloudflare&logoColor=white
+[cloudflare-url]: https://workers.cloudflare.com/
+[gh-workflow-image]: https://img.shields.io/github/actions/workflow/status/roseratugo/okarin/release.yml?branch=main&style=for-the-badge
+[gh-workflow-url]: https://github.com/roseratugo/okarin/actions/workflows/release.yml
+[licence-image]: https://img.shields.io/badge/License-MIT-green?style=for-the-badge
+[licence-url]: LICENSE.md
