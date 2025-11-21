@@ -7,6 +7,7 @@ import './index.css';
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
+      <div data-tauri-drag-region className="drag-region" />
       <App />
     </BrowserRouter>
   </React.StrictMode>
