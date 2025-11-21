@@ -1,156 +1,134 @@
-# Okarin
+<div align="center">
+  <h1>Okarin</h1>
+  <p>Local-first podcast recording for distributed teams</p>
+</div>
 
-Professional podcast recording application with local high-quality recording for distributed teams.
+<br />
 
-## Features
+<div align="center">
 
-- 🎙️ **Local Recording**: Each participant records locally for maximum quality
-- 🎬 **Separate Tracks**: Individual audio/video tracks per participant for professional editing
-- 🌐 **Cloudflare Calls SFU**: Scalable WebRTC with Selective Forwarding Unit
-- 🚀 **Global Edge**: Signaling server deployed on Cloudflare Workers worldwide
-- 🎯 **Cross-platform**: macOS support via Tauri (Windows coming soon)
-- 🔒 **Privacy-first**: Media routed through Cloudflare's secure infrastructure
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tauri](https://img.shields.io/badge/Tauri-2.9-24C8D8?logo=tauri&logoColor=white)](https://tauri.app/)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## Architecture
+</div>
 
-This is a monorepo managed with pnpm workspaces containing:
+<br />
 
-- `apps/desktop` - Tauri desktop application with React
-- `apps/signaling` - Cloudflare Worker for WebRTC signaling
-- `packages/ui` - Reusable React components
+## Why Okarin?
 
-```
-okarin/
-├── apps/
-│   ├── desktop/          # Tauri + React desktop app
-│   └── signaling/        # Cloudflare Worker signaling server
-├── packages/
-│   └── ui/               # Reusable UI components
-├── pnpm-workspace.yaml   # Workspace configuration
-└── package.json          # Root package configuration
-```
+Recording a podcast remotely usually means one compressed audio stream for everyone. Okarin captures each participant as a separate track, giving you individual files for professional post-production.
 
-## Prerequisites
-
-- Node.js >= 18
-- pnpm >= 8
-- Rust >= 1.70 (for Tauri)
-- Cloudflare account (for signaling server)
+- **Multi-track recording** - Each participant recorded as a separate audio/video file
+- **Full quality** - No compression from centralized recording
+- **WebRTC SFU** - Scalable media routing via Cloudflare Calls
+- **Edge signaling** - Sub-50ms latency with global Cloudflare Workers
 
 ## Installation
 
-```bash
-# Install pnpm if you haven't already
-npm install -g pnpm
+Download the latest release from [GitHub Releases](https://github.com/roseratugo/okarin/releases).
 
-# Install dependencies
-pnpm install
-```
+**macOS**: Download `.dmg`, drag to Applications
+**Windows**: Coming soon
+**Linux**: Coming soon
 
 ## Development
 
+### Prerequisites
+
+- Node.js >= 18
+- pnpm >= 8
+- Rust >= 1.70
+
+### Setup
+
 ```bash
-# Run desktop app in development mode
-pnpm dev:desktop
-
-# Run signaling server locally
-pnpm dev:signaling
-
-# Build all packages
-pnpm build
-
-# Build desktop app for distribution
-pnpm tauri:build
-
-# Lint and format
-pnpm lint
-pnpm format
+pnpm install
 ```
+
+### Commands
+
+```bash
+# Development
+pnpm dev:desktop      # Desktop app with hot reload
+pnpm dev:signaling    # Local signaling server
+
+# Build
+pnpm build            # All packages
+pnpm tauri:build      # Desktop distributable
+
+# Quality
+pnpm lint             # Check code
+pnpm typecheck        # Type validation
+```
+
+## Architecture
+
+```
+apps/
+├── desktop/       # Tauri + React
+├── signaling/     # Cloudflare Worker (WebSocket rooms)
+└── auth/          # Cloudflare Worker (JWT auth)
+
+packages/
+└── ui/            # Shared components
+```
+
+### Stack
+
+**Desktop**: Tauri, React 19, Zustand, Tailwind CSS
+**Backend**: Cloudflare Workers, Durable Objects, KV
+**Media**: Cloudflare Calls SFU, WebRTC
 
 ## Deployment
 
-### Signaling Server (Cloudflare Worker)
+### Signaling Server
 
 ```bash
 cd apps/signaling
 
-# Configure secrets
+# Set secrets
 npx wrangler secret put JWT_SECRET
 npx wrangler secret put CLOUDFLARE_APP_SECRET
 
 # Deploy
-npx wrangler deploy
+npx wrangler deploy -c wrangler.jsonc
 ```
 
 ### Desktop App
 
-```bash
-pnpm tauri:build
-```
-
-The DMG will be created in `apps/desktop/src-tauri/target/release/bundle/dmg/`.
+Releases are built automatically via GitHub Actions when pushing to `main`.
 
 ## Configuration
 
-### Desktop App
+### Desktop
 
 Create `apps/desktop/.env`:
 
 ```env
 VITE_SIGNALING_SERVER_URL=https://your-worker.workers.dev
+VITE_AUTH_SERVER_URL=https://auth.your-domain.com
 ```
 
-### Signaling Server
+### Signaling
 
-Configure in `apps/signaling/wrangler.jsonc`:
+Edit `apps/signaling/wrangler.jsonc`:
 
 ```json
 {
   "vars": {
-    "CLOUDFLARE_APP_ID": "your-cloudflare-calls-app-id",
-    "CORS_ORIGIN": "*"
+    "CLOUDFLARE_APP_ID": "your-cloudflare-calls-app-id"
   }
 }
 ```
 
-## Technology Stack
-
-### Frontend
-
-- **Tauri** - Desktop application framework
-- **React 19** - UI framework
-- **TypeScript** - Type safety
-- **Zustand** - State management
-- **Tailwind CSS** - Styling
-
-### Backend
-
-- **Cloudflare Workers** - Edge computing
-- **Durable Objects** - Stateful WebSocket rooms
-- **KV Storage** - Room metadata
-
-### WebRTC
-
-- **Cloudflare Calls** - SFU for scalable media routing
-- **STUN/TURN** - NAT traversal via Cloudflare
-
-## Scripts
-
-| Command              | Description                        |
-| -------------------- | ---------------------------------- |
-| `pnpm dev:desktop`   | Start desktop app in dev mode      |
-| `pnpm dev:signaling` | Start signaling server locally     |
-| `pnpm build`         | Build all packages                 |
-| `pnpm tauri:build`   | Build desktop app for distribution |
-| `pnpm lint`          | Lint all packages                  |
-| `pnpm format`        | Format all files                   |
-
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT + Commons Clause - See [LICENSE](LICENSE)
+[MIT + Commons Clause](LICENSE)
 
-This means you can use, modify, and distribute freely, but you cannot sell the software commercially.
+Free to use, modify, and distribute. Commercial sale prohibited.
