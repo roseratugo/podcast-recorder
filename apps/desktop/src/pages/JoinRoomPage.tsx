@@ -1,6 +1,6 @@
-import { useState, useEffect, type ReactElement } from 'react';
+import { useState, useEffect, useRef, type ReactElement } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Button, Input, AbstractBackground } from '../components/ui';
+import { AbstractBackground } from '../components/ui';
 import PreJoinScreen, { JoinSettings } from '../components/PreJoinScreen';
 import { joinRoom, getRoomInfo, getMe } from '../lib/signalingApi';
 import './JoinRoomPage.css';
@@ -10,12 +10,67 @@ export default function JoinRoomPage(): ReactElement {
   const [searchParams] = useSearchParams();
 
   const roomIdFromUrl = searchParams.get('roomId');
-  const [roomId, setRoomId] = useState(roomIdFromUrl || '');
+  const initialDigits = roomIdFromUrl ? roomIdFromUrl.replace(/\D/g, '').slice(0, 6).split('') : [];
+  const [otpValues, setOtpValues] = useState<string[]>(
+    Array(6)
+      .fill('')
+      .map((_, i) => initialDigits[i] || '')
+  );
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [userName, setUserName] = useState('');
   const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState('');
   const [showPreJoin, setShowPreJoin] = useState(false);
   const [roomName, setRoomName] = useState('');
+  const [step, setStep] = useState<1 | 2>(roomIdFromUrl ? 2 : 1);
+
+  const roomId = otpValues.join('');
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+
+    const newValues = [...otpValues];
+    newValues[index] = value.slice(-1);
+    setOtpValues(newValues);
+
+    // Auto-focus next input
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !otpValues[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+    if (e.key === 'Enter' && roomId.length === 6) {
+      handleNextStep();
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    const newValues = Array(6)
+      .fill('')
+      .map((_, i) => pastedData[i] || '');
+    setOtpValues(newValues);
+    if (pastedData.length === 6) {
+      inputRefs.current[5]?.focus();
+    } else {
+      inputRefs.current[pastedData.length]?.focus();
+    }
+  };
+
+  const handleNextStep = () => {
+    const cleanId = roomId.replace(/-/g, '');
+    if (cleanId.length !== 6) {
+      setError('Please enter a valid room code (XXX-XXX)');
+      return;
+    }
+    setError('');
+    setStep(2);
+  };
 
   // Check if authenticated and redirect to create page
   useEffect(() => {
@@ -110,50 +165,92 @@ export default function JoinRoomPage(): ReactElement {
           </div>
 
           <div className="join-form">
-            <div className="form-group">
-              <label htmlFor="roomId" className="form-label">
-                Room ID
-              </label>
-              <Input
-                id="roomId"
-                type="text"
-                placeholder="Enter room ID..."
-                value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
-                disabled={isJoining}
-              />
-            </div>
+            {step === 1 ? (
+              <>
+                <div className="otp-container" onPaste={handleOtpPaste}>
+                  <div className="otp-group">
+                    {[0, 1, 2].map((i) => (
+                      <input
+                        key={i}
+                        ref={(el) => {
+                          inputRefs.current[i] = el;
+                        }}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={otpValues[i]}
+                        onChange={(e) => handleOtpChange(i, e.target.value)}
+                        onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                        disabled={isJoining}
+                        className="otp-input"
+                        autoFocus={i === 0}
+                      />
+                    ))}
+                  </div>
+                  <span className="otp-separator">-</span>
+                  <div className="otp-group">
+                    {[3, 4, 5].map((i) => (
+                      <input
+                        key={i}
+                        ref={(el) => {
+                          inputRefs.current[i] = el;
+                        }}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={otpValues[i]}
+                        onChange={(e) => handleOtpChange(i, e.target.value)}
+                        onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                        disabled={isJoining}
+                        className="otp-input"
+                      />
+                    ))}
+                  </div>
+                </div>
 
-            <div className="form-group">
-              <label htmlFor="userName" className="form-label">
-                Your Name
-              </label>
-              <Input
-                id="userName"
-                type="text"
-                placeholder="Enter your name..."
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                disabled={isJoining}
-                onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
-              />
-            </div>
+                {error && (
+                  <div className="join-error">
+                    <p>{error}</p>
+                  </div>
+                )}
 
-            {error && (
-              <div className="join-error">
-                <p>{error}</p>
-              </div>
+                <button
+                  onClick={handleNextStep}
+                  disabled={isJoining}
+                  className="glass-btn glass-btn-primary join-btn"
+                >
+                  Next
+                </button>
+              </>
+            ) : (
+              <>
+                <input
+                  id="userName"
+                  type="text"
+                  placeholder="Your name"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  disabled={isJoining}
+                  onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
+                  autoFocus
+                  className="name-input"
+                />
+
+                {error && (
+                  <div className="join-error">
+                    <p>{error}</p>
+                  </div>
+                )}
+
+                <button
+                  onClick={handleJoinRoom}
+                  disabled={isJoining}
+                  className="glass-btn glass-btn-primary join-btn"
+                >
+                  {isJoining ? 'Joining...' : 'Join'}
+                </button>
+              </>
             )}
-
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={handleJoinRoom}
-              disabled={isJoining}
-              className="join-btn"
-            >
-              {isJoining ? 'Joining...' : 'Join Room'}
-            </Button>
           </div>
         </div>
       </div>
