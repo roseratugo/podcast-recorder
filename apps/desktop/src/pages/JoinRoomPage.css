@@ -21,11 +21,11 @@
 
 .join-title {
   font-family: var(--font-display);
-  font-size: 4rem;
+  font-size: 6rem;
   font-weight: 700;
   color: white;
   margin: 0;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
   text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
